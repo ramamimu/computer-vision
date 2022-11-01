@@ -33,7 +33,9 @@ int main(){
    namedWindow("Linear Blend", WINDOW_AUTOSIZE); // Create Window
    char TrackbarName[50];
    sprintf( TrackbarName, "Alpha x %d", alpha_slider_max );
-
+   createTrackbar( TrackbarName, "Linear Blend", &alpha_slider, alpha_slider_max );
+   on_trackbar( alpha_slider, 0 );
+ 
     // imshow("image", img);
     waitKey(0);
     return 0;

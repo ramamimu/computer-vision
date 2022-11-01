@@ -1,6 +1,7 @@
-
+#include <opencv2/core.hpp>
 #include "opencv2/imgcodecs.hpp"
-#include "opencv2/highgui.hpp"
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 using namespace cv;
 
@@ -17,11 +18,11 @@ Mat dst;
 
 static void on_trackbar( int, void* )
 {
-    cout << alpha_slider << endl;
+   cout << alpha_slider << endl;
 //    alpha = (double) alpha_slider/alpha_slider_max ;
 //    beta = ( 1.0 - alpha );
 //    addWeighted( src1, alpha, src2, beta, 0.0, dst);
-   // imshow( "Linear Blend", dst );
+   imshow( "Linear Blend", dst );
 }
 int main( void )
 {
@@ -38,6 +39,7 @@ int main( void )
    on_trackbar( alpha_slider, 0 );
    while(true){
       cout << cv::getTrackbarPos(TrackbarName, "Linear Blend") << endl;
+      // line(TrackbarName, cv::Point(0, 0), cv::Point(250, 250), cv::Scalar(255, 255, 255), 50);
       if (waitKey(30) >= 0)
          break;    
 
