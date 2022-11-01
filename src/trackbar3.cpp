@@ -19,9 +19,9 @@ Mat dst;
 static void on_trackbar( int, void* )
 {
    cout << alpha_slider << endl;
-//    alpha = (double) alpha_slider/alpha_slider_max ;
-//    beta = ( 1.0 - alpha );
-//    addWeighted( src1, alpha, src2, beta, 0.0, dst);
+   alpha = (double) alpha_slider/alpha_slider_max ;
+   beta = ( 1.0 - alpha );
+   addWeighted( src1, alpha, src2, beta, 0.0, dst);
    imshow( "Linear Blend", dst );
 }
 int main( void )
@@ -37,12 +37,12 @@ int main( void )
 //    createTrackbar( TrackbarName, "Linear Blend", &alpha_slider, alpha_slider_max, on_trackbar );
    createTrackbar( TrackbarName, "Linear Blend", &alpha_slider, alpha_slider_max );
    on_trackbar( alpha_slider, 0 );
-   while(true){
-      cout << cv::getTrackbarPos(TrackbarName, "Linear Blend") << endl;
+   // while(true){
+      // cout << cv::getTrackbarPos(TrackbarName, "Linear Blend") << endl;
       // line(TrackbarName, cv::Point(0, 0), cv::Point(250, 250), cv::Scalar(255, 255, 255), 50);
-      if (waitKey(30) >= 0)
-         break;    
+   //    if (waitKey(30) >= 0)
+   //       break;    
 
-   }
+   // }
    return 0;
 }
