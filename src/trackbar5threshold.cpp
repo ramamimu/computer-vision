@@ -5,7 +5,7 @@ using namespace std;
 using namespace cv;
 
 Mat img, img_resized, img_hsv, img_hsv2, bw_and;
-Mat HSV;
+Mat HSV, gaussian_blur, gaussian_blur_hsv, canny_filter;
 
 void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 {
@@ -49,6 +49,10 @@ int main(int argc, char** argv) {
     resize(img, img_resized, Size(img.cols/divided_scale, img.rows/divided_scale));
     cvtColor(img_resized, img_hsv, COLOR_BGR2HSV);
     cvtColor(img_resized, img_hsv2, COLOR_BGR2HSV);
+    GaussianBlur(img_resized, gaussian_blur, Size(5, 5), 0, 0);
+    GaussianBlur(img_hsv, gaussian_blur_hsv, Size(9, 9), 0, 0);
+    Canny(img_resized, canny_filter, 50, 150, 3);
+    // GaussianBlur(img_hsv, img_hsv, Size(9, 9), 0, 0);
 
     // cvtColor(img_resized, img_resized, COLOR_BGR2HSV);
     // cout << img_hsv.size() << endl;
@@ -86,6 +90,10 @@ int main(int argc, char** argv) {
         imshow("WINDOW img", img_resized);
         setMouseCallback("HSV 2", CallBackFunc, NULL);
         imshow("range HSV", HSV);
+        imshow("gaussian_blur", gaussian_blur);
+        imshow("gaussian_blur hsv", gaussian_blur_hsv);
+        imshow("canny_filter", canny_filter);
+
 
         // cout<<Scalar(L_H, L_S, L_V)<<endl;
         // cout<<Scalar(U_H, U_S, U_V)<<endl;
