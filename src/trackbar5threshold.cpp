@@ -40,6 +40,8 @@ int main(int argc, char** argv) {
     createTrackbar("U_S", "threshold", &U_S, 255);
     createTrackbar("L_V", "threshold", &L_V, 255);
     createTrackbar("U_V", "threshold", &U_V, 255);
+    vector<Point2f> mc_vector;
+    bool flag = false;
     while (true)
     {
         cap >> img;
@@ -81,14 +83,22 @@ int main(int argc, char** argv) {
         Point2f mc;
         if(max_contour_index != -1)
         {
-            // cout<<contours[max_contour_index]<<endl;
-            Point2f( static_cast<float>(mu.m10 / (mu.m00 + 1e-5)),
-                         static_cast<float>(mu.m01 / (mu.m00 + 1e-5)) );
             mc = Point2f( mu.m10/mu.m00 , mu.m01/mu.m00 );
             cout << "center point " << mc << endl;
             drawContours(final_contours, contours, max_contour_index, Scalar(0, 0, 250), 3);
             circle(final_contours, mc, 4, Scalar(250, 0, 0), -1, 8, 0);
             // resize(final_contours, final_contours, Size(), 1.5, 1.5);
+            if(flag)
+                mc_vector.push_back(mc);
+            if(mc_vector.size() >= 20)
+                mc_vector.erase(mc_vector.begin());
+        }
+
+        if(mc_vector.size() != 0 ){
+            for(int i=0; i<mc_vector.size(); i++){
+                int16_t rand_radius = rand() % 20 + 5;
+                circle(final_contours, mc_vector[i], rand_radius, Scalar(0, 250, 0), -1, 8, 0);
+            }
         }
 
         imshow("WINDOW img", img_resized);
@@ -103,6 +113,14 @@ int main(int argc, char** argv) {
         // 180 300
         if(waitKey(1) == 32)
             break;
+
+        if(waitKey(1) == 47)
+            flag = true;
+
+        if(waitKey(1) == 46)
+            flag = false;
+
+        cout << flag << endl;
     }
     // waitKey(0);
     return 0;
