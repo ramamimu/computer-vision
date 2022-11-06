@@ -25,17 +25,7 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 
 int main(int argc, char** argv) {
 
-    img = imread("/home/ram/IRIS/OpenCV/image/img5.jpg");
-    HSV = imread("/home/ram/IRIS/OpenCV/image/HSV.png");
-
-    // resize(img, img_resized, Size(), 2, 2);
-    int divided_scale = 8;
-    resize(HSV, HSV, Size(), 2, 2);
-    resize(img, img_resized, Size(img.cols/divided_scale, img.rows/divided_scale));
-    GaussianBlur(img_resized, gaussian_blur, Size(5, 5), 0, 0);
-    cvtColor(gaussian_blur, img_hsv, COLOR_BGR2HSV);
-    cvtColor(gaussian_blur, img_hsv2, COLOR_BGR2HSV);
-    // Canny(gaussian_blur, canny_filter, 50, 150, 3);
+    VideoCapture cap(0);
 
     int L_H = 0;
     int U_H = 180;
@@ -44,14 +34,29 @@ int main(int argc, char** argv) {
     int L_V = 0;
     int U_V = 255;
     namedWindow("threshold", WINDOW_AUTOSIZE);
-    createTrackbar("L_H", "threshold", &L_H, 180);
-    createTrackbar("U_H", "threshold", &U_H, 180);
+    createTrackbar("L_H", "threshold", &L_H, 255);
+    createTrackbar("U_H", "threshold", &U_H, 255);
     createTrackbar("L_S", "threshold", &L_S, 255);
     createTrackbar("U_S", "threshold", &U_S, 255);
     createTrackbar("L_V", "threshold", &L_V, 255);
     createTrackbar("U_V", "threshold", &U_V, 255);
     while (true)
     {
+        cap >> img;
+        flip(img, img, 1);
+        // img = imread("/home/ram/IRIS/OpenCV/image/img5.jpg");
+        HSV = imread("/home/ram/IRIS/OpenCV/image/HSV.png");
+
+        // resize(img, img_resized, Size(), 2, 2);
+        int divided_scale = 8;
+        resize(HSV, HSV, Size(), 2, 2);
+        resize(img, img_resized, Size(), .5, .5);
+        GaussianBlur(img_resized, gaussian_blur, Size(5, 5), 0, 0);
+        cvtColor(gaussian_blur, img_hsv, COLOR_BGR2HSV);
+        cvtColor(gaussian_blur, img_hsv2, COLOR_BGR2HSV);
+        // Canny(gaussian_blur, canny_filter, 50, 150, 3);
+
+        // image filtering
         Mat res, final_contours;
         vector<vector<Point> > contours;
         final_contours = img_resized.clone();
@@ -83,7 +88,7 @@ int main(int argc, char** argv) {
             cout << "center point " << mc << endl;
             drawContours(final_contours, contours, max_contour_index, Scalar(0, 0, 250), 3);
             circle(final_contours, mc, 4, Scalar(250, 0, 0), -1, 8, 0);
-            resize(final_contours, final_contours, Size(), 1.5, 1.5);
+            // resize(final_contours, final_contours, Size(), 1.5, 1.5);
         }
 
         imshow("WINDOW img", img_resized);
@@ -96,7 +101,7 @@ int main(int argc, char** argv) {
         // imshow("canny_filter", canny_filter);
   
         // 180 300
-        if(waitKey(30) == 32)
+        if(waitKey(1) == 32)
             break;
     }
     // waitKey(0);
