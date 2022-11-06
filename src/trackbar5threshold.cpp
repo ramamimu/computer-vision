@@ -5,7 +5,7 @@ using namespace std;
 using namespace cv;
 
 Mat img, img_resized, img_hsv, img_hsv2, bw_and;
-Mat HSV, gaussian_blur, gaussian_blur_hsv, canny_filter;
+Mat HSV, gaussian_blur, canny_filter;
 
 void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 {
@@ -21,21 +21,6 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
         cout << "V = " << V << endl;
 
     }
-
-    //  else if  ( event == EVENT_RBUTTONDOWN )
-    //  {
-    //       cout << "Right button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
-    //  }
-    //  else 
-    //  if  ( event == EVENT_MBUTTONDOWN )
-    //  {
-    //       cout << "Middle button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
-    //  }
-    //  else if ( event == EVENT_MOUSEMOVE )
-    //  {
-    //       cout << "Mouse move over the window - position (" << x << ", " << y << ")" << endl;
-
-    //  }
 }
 
 int main(int argc, char** argv) {
@@ -47,23 +32,11 @@ int main(int argc, char** argv) {
     int divided_scale = 8;
     resize(HSV, HSV, Size(), 2, 2);
     resize(img, img_resized, Size(img.cols/divided_scale, img.rows/divided_scale));
-    cvtColor(img_resized, img_hsv, COLOR_BGR2HSV);
-    cvtColor(img_resized, img_hsv2, COLOR_BGR2HSV);
     GaussianBlur(img_resized, gaussian_blur, Size(5, 5), 0, 0);
-    GaussianBlur(img_hsv, gaussian_blur_hsv, Size(9, 9), 0, 0);
-    Canny(img_resized, canny_filter, 50, 150, 3);
-    // GaussianBlur(img_hsv, img_hsv, Size(9, 9), 0, 0);
+    cvtColor(gaussian_blur, img_hsv, COLOR_BGR2HSV);
+    cvtColor(gaussian_blur, img_hsv2, COLOR_BGR2HSV);
+    // Canny(gaussian_blur, canny_filter, 50, 150, 3);
 
-    // cvtColor(img_resized, img_resized, COLOR_BGR2HSV);
-    // cout << img_hsv.size() << endl;
-    // resize(img_resized, img_resized, Size(img_resized.cols/divided_scale, img_resized.rows/divided_scale));
-
-    // int L_H = 0;
-    // int U_H = 77;
-    // int L_S = 73;
-    // int U_S = 247;
-    // int L_V = 83;
-    // int U_V = 228;
     int L_H = 0;
     int U_H = 180;
     int L_S = 0;
@@ -79,31 +52,52 @@ int main(int argc, char** argv) {
     createTrackbar("U_V", "threshold", &U_V, 255);
     while (true)
     {
-        Mat res;
-        // res = Scalar(0,0,0);
-        /* code */
+        Mat res, final_contours;
+        vector<vector<Point> > contours;
+        final_contours = img_resized.clone();
         inRange(img_resized, Scalar(L_H, L_S, L_V), Scalar(U_H, U_S, U_V), img_hsv);
         bitwise_and(img_resized, img_resized,res, img_hsv);
-        imshow("result", res);
-        imshow("WINDOW HSV", img_hsv);
-        imshow("HSV 2", img_hsv2);
-        imshow("WINDOW img", img_resized);
         setMouseCallback("HSV 2", CallBackFunc, NULL);
-        imshow("range HSV", HSV);
+        findContours( img_hsv, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE );
+        uint32_t max_contour = 0;
+        int32_t max_contour_index = -1;
+        Moments mu;
+        for (int i = 0; i<contours.size(); i++)
+        {
+            // drawContours(final_contours, contours, i, Scalar(0, 250, 0), 3);
+            // cout << contourArea(contours[i]) << endl;
+            if(contourArea(contours[i]) > max_contour)
+            {
+                max_contour = contourArea(contours[i]);
+                max_contour_index = i;
+                mu = moments( contours[i] );
+            }
+        }
+        Point2f mc;
+        if(max_contour_index != -1)
+        {
+            // cout<<contours[max_contour_index]<<endl;
+            Point2f( static_cast<float>(mu.m10 / (mu.m00 + 1e-5)),
+                         static_cast<float>(mu.m01 / (mu.m00 + 1e-5)) );
+            mc = Point2f( mu.m10/mu.m00 , mu.m01/mu.m00 );
+            cout << "center point " << mc << endl;
+            drawContours(final_contours, contours, max_contour_index, Scalar(0, 0, 250), 3);
+            circle(final_contours, mc, 4, Scalar(250, 0, 0), -1, 8, 0);
+            resize(final_contours, final_contours, Size(), 1.5, 1.5);
+        }
+
+        imshow("WINDOW img", img_resized);
         imshow("gaussian_blur", gaussian_blur);
-        imshow("gaussian_blur hsv", gaussian_blur_hsv);
-        imshow("canny_filter", canny_filter);
-
-
-        // cout<<Scalar(L_H, L_S, L_V)<<endl;
-        // cout<<Scalar(U_H, U_S, U_V)<<endl;
-        //  Vec3b _hsv_ =  img_resized.at<Vec3b>(180,80);
-        //  int H = _hsv_.val[0];
-        //  cout << H << endl;
+        imshow("HSV 2", img_hsv2);
+        imshow("WINDOW HSV", img_hsv);
+        imshow("result", res);
+        imshow("range HSV", HSV);
+        imshow("final contours", final_contours);
+        // imshow("canny_filter", canny_filter);
   
-    // 180 300
-    if(waitKey(30) > 0)
-        break;
+        // 180 300
+        if(waitKey(30) == 32)
+            break;
     }
     // waitKey(0);
     return 0;
