@@ -41,7 +41,8 @@ int main(int argc, char** argv) {
     createTrackbar("L_V", "threshold", &L_V, 255);
     createTrackbar("U_V", "threshold", &U_V, 255);
     vector<Point2f> mc_vector;
-    bool flag = false;
+    // bool flag = false;
+    bool flag = true;
     while (true)
     {
         cap >> img;
@@ -114,11 +115,11 @@ int main(int argc, char** argv) {
         if(waitKey(1) == 32)
             break;
 
-        if(waitKey(1) == 47)
-            flag = true;
+        // if(waitKey(1) == 47)
+        //     flag = true;
 
-        if(waitKey(1) == 46)
-            flag = false;
+        // if(waitKey(1) == 46)
+        //     flag = false;
 
         cout << flag << endl;
     }
